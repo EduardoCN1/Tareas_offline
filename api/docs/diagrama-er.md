@@ -51,4 +51,4 @@ erDiagram
 |----------|-------------|
 | User → Tareas | Un usuario tiene muchas tareas (hasMany) |
 | Tarea → User | Una tarea pertenece a un usuario (belongsTo) |
-| Tarea ↔ Tags | Relación muchos a muchos mediante tabla pivote `tarea_tag` |
+| Tarea ←→ Tags | Relación muchos a muchos mediante tabla pivote `tarea_tag` |
