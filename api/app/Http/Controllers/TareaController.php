@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreTareaRequest;
+use App\Http\Requests\UpdateTareaRequest;
+use App\Http\Requests\AssignTagsRequest;
 
 class TareaController extends Controller
 {
@@ -13,15 +16,8 @@ class TareaController extends Controller
         return response()->json($tareas);
     }
     // POST /api/tareas - Crear nueva tarea
-    public function store(Request $request)
+    public function store(StoreTareaRequest $request)
     {
-        $request->validate([
-            'titulo' => 'required|string|max:150',
-            'descripcion' => 'nullable|string',
-            'fecha_limite' => 'nullable|date',
-            'latitud' => 'nullable|numeric|between:-90,90',
-            'longitud' => 'nullable|numeric|between:-180,180',
-        ]);
 
         $tarea = $request->user()->tareas()->create([
             'titulo' => $request->titulo,
@@ -45,22 +41,16 @@ class TareaController extends Controller
         return response()->json($tarea);
     }
     // PUT /api/tareas/{id} - Actualizar tarea
-    public function update(Request $request, string $id)
+    public function update(UpdateTareaRequest $request, string $id)
     {
         $tarea = $request->user()->tareas()->find($id);
+        
         if (!$tarea) {
             return response()->json([
                 'message' => 'Tarea no encontrada'
             ], 404);
         }
-        $request->validate([
-            'titulo' => 'sometimes|required|string|max:150',
-            'descripcion' => 'nullable|string',
-            'completada' => 'sometimes|boolean',
-            'fecha_limite' => 'nullable|date',
-            'latitud' => 'nullable|numeric|between:-90,90',
-            'longitud' => 'nullable|numeric|between:-180,180',
-        ]);
+        
         $tarea->update($request->only([
             'titulo',
             'descripcion',
@@ -86,7 +76,7 @@ class TareaController extends Controller
         ]);
     }
     // POST /api/tareas/{id}/tags - Asignar tags a una tarea
-    public function assignTags(Request $request, string $id)
+    public function assignTags(AssignTagsRequest $request, string $id)
     {
         $tarea = $request->user()->tareas()->find($id);
         if (!$tarea) {
@@ -94,10 +84,6 @@ class TareaController extends Controller
                 'message' => 'Tarea no encontrada'
             ], 404);
         }
-        $request->validate([
-            'tags' => 'required|array',
-            'tags.*' => 'exists:tags,id',
-        ]);
         $tarea->tags()->sync($request->tags);
         return response()->json($tarea->load('tags'));
     }

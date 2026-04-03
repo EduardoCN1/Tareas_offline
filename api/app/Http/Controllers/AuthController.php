@@ -3,18 +3,16 @@
 namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Requests\RegisterRequest;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\UpdateAvatarRequest;
 
 class AuthController extends Controller
 {
    // POST /api/register
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|unique:users',
-            'password' => 'required|string|min:8',
-        ]);
 
         $user = User::create([
             'name' => $request->name,
@@ -30,13 +28,8 @@ class AuthController extends Controller
         ], 201);
     }
     // POST /api/login
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
-
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
@@ -68,12 +61,8 @@ class AuthController extends Controller
     }
 
     // POST /api/me/avatar
-    public function updateAvatar(Request $request)
+    public function updateAvatar(UpdateAvatarRequest $request)
     {
-        $request->validate([
-            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
-
         $user = $request->user();
 
         // Eliminar avatar anterior si existe
@@ -83,8 +72,10 @@ class AuthController extends Controller
 
         // Guardar nueva imagen
         $file = $request->file('avatar');
-        $filename = 'avatars/' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-        $file->move(public_path('avatars'), $user->id . '_' . time() . '.' . $file->getClientOriginalExtension());
+        $extension = $file->getClientOriginalExtension();
+        $newFilename = $user->id . '_' . time() . '.' . $extension;
+        $file->move(public_path('avatars'), $newFilename);
+        $filename = 'avatars/' . $newFilename;
 
         // Extraer metadatos EXIF (si están disponibles)
         $exifData = null;

@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tag;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreTagRequest;
+
 
 class TagController extends Controller
 {
@@ -15,12 +16,8 @@ class TagController extends Controller
     }
 
     // POST /api/tags - Crear nuevo tag
-    public function store(Request $request)
+    public function store(StoreTagRequest $request)
     {
-        $request->validate([
-            'nombre' => 'required|string|max:50',
-            'color' => 'required|string|size:7|regex:/^#[A-Fa-f0-9]{6}$/',
-        ]);
         $tag = Tag::create([
             'nombre' => $request->nombre,
             'color' => $request->color,
