@@ -1,66 +1,222 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# API de Tareas - Prueba Técnica
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API REST para gestión de tareas personales desarrollada con Laravel 12 y PostgreSQL.
 
-## About Laravel
+## Stack Tecnológico
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Framework:** Laravel 12
+- **PHP:** 8.4
+- **Base de datos:** PostgreSQL 18
+- **Autenticación:** Laravel Sanctum
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requisitos Previos
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Antes de instalar, asegúrate de tener:
 
-## Learning Laravel
+- PHP 8.2 o superior
+- Composer
+- PostgreSQL 15 o superior
+- Extensiones PHP habilitadas: `pdo_pgsql`, `pgsql`, `fileinfo`, `exif`, `zip`
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Instalación
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 1. Clonar el repositorio
+```bash
+git clone https://gitlab.com/pruebatecnica-group1/PruebaTecnica-project.git
+cd api
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 2. Instalar dependencias
+```bash
+composer install
+```
 
-## Laravel Sponsors
+### 3. Configurar variables de entorno
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 4. Configurar base de datos
 
-### Premium Partners
+Crea la base de datos en PostgreSQL:
+```sql
+CREATE DATABASE tareas_app;
+CREATE USER tareas_user WITH PASSWORD 'tu_password';
+GRANT ALL PRIVILEGES ON DATABASE tareas_app TO tareas_user;
+GRANT ALL ON SCHEMA public TO tareas_user;
+ALTER DATABASE tareas_app OWNER TO tareas_user;
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+Edita el archivo `.env` con tus credenciales:
+```env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=tareas_app
+DB_USERNAME=tareas_user
+DB_PASSWORD=tu_password
+```
 
-## Contributing
+### 5. Ejecutar migraciones y seeders
+```bash
+php artisan migrate:fresh --seed
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 6. Verificar carpeta para avatares
+La carpeta `public/avatars` ya existe con una imagen de ejemplo. Si por alguna razón no existe:
+```bash
+mkdir public/avatars
+```
 
-## Code of Conduct
+### 7. Iniciar el servidor
+```bash
+php artisan serve
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+La API estará disponible en `http://127.0.0.1:8000`
 
-## Security Vulnerabilities
+## Usuario Demo
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Los seeders crean un usuario de prueba:
 
-## License
+| Campo | Valor |
+|-------|-------|
+| Email | demo@example.com |
+| Password | password |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Endpoints
+
+### Autenticación
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | /api/register | Registro de nuevo usuario |
+| POST | /api/login | Inicio de sesión |
+| POST | /api/logout | Cerrar sesión (requiere auth) |
+| GET | /api/me | Datos del usuario autenticado |
+| POST | /api/me/avatar | Subir foto de perfil |
+
+### Tareas (requieren autenticación)
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | /api/tareas | Listar tareas del usuario |
+| POST | /api/tareas | Crear tarea |
+| GET | /api/tareas/{id} | Ver detalle de tarea |
+| PUT | /api/tareas/{id} | Actualizar tarea |
+| DELETE | /api/tareas/{id} | Eliminar tarea |
+| POST | /api/tareas/{id}/tags | Asignar tags a tarea |
+| DELETE | /api/tareas/{id}/tags/{tagId} | Quitar tag de tarea |
+
+### Tags (requieren autenticación)
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | /api/tags | Listar todos los tags |
+| POST | /api/tags | Crear nuevo tag |
+| DELETE | /api/tags/{id} | Eliminar tag |
+
+## Colección Postman
+
+Se incluye el archivo `postman_collection.json` con todos los endpoints configurados.
+
+### Importar colección
+
+1. Abrir Postman
+2. Click en **Import**
+3. Seleccionar el archivo `postman_collection.json`
+4. La colección aparecerá con 3 carpetas: Auth, Tareas, Tags
+
+### Uso
+
+1. Ejecutar primero **Login** para obtener el token
+2. El token se guarda automáticamente para las demás peticiones
+3. Probar cualquier endpoint
+
+## Probar Extracción de EXIF
+
+La API extrae automáticamente metadatos EXIF al subir fotos de perfil.
+
+### Cómo probar
+
+1. Hacer login en Postman
+2. Ir a **Auth → Subir Avatar**
+3. En el campo `avatar`, seleccionar una foto JPG (puede usar la foto de ejemplo en `public/avatars/`)
+4. Click en **Send**
+
+### Resultado esperado
+```json
+{
+  "message": "Avatar actualizado correctamente",
+  "avatar": "avatars/1_1234567890.jpg",
+  "avatar_exif": {
+    "make": "motorola",
+    "model": "motorola edge 40",
+    "datetime": "2025:01:30 14:20:49",
+    "gps_latitude": null,
+    "gps_longitude": null
+  }
+}
+```
+
+## Decisiones de Diseño
+
+### Autenticación con Sanctum
+
+Se eligió Sanctum sobre JWT porque:
+- Es la solución oficial de Laravel para SPAs y apps móviles
+- Los tokens se almacenan en base de datos, permitiendo revocación fácil
+- Integración nativa con el framework
+
+### Múltiples tokens por usuario
+
+La API permite múltiples tokens activos por usuario. Esto permite usar la app desde varios dispositivos simultáneamente. Si se requiriera un solo dispositivo, se puede modificar el login para revocar tokens anteriores.
+
+### Tags compartidos
+
+Los tags son globales (no pertenecen a un usuario específico). Cualquier usuario puede usar cualquier tag. Esto simplifica la gestión y permite consistencia entre usuarios.
+
+### Validaciones con Form Requests
+
+Todas las validaciones se manejan en clases Form Request separadas, no en los controladores. Esto cumple con el requisito de la prueba y mejora la mantenibilidad del código.
+
+### Extracción de EXIF
+
+Al subir avatar, el backend extrae automáticamente metadatos EXIF de imágenes JPG/JPEG (modelo de cámara, fecha, GPS si está disponible).
+
+## Estructura del Proyecto
+api/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── AuthController.php
+│   │   │   ├── TareaController.php
+│   │   │   └── TagController.php
+│   │   └── Requests/
+│   │       ├── RegisterRequest.php
+│   │       ├── LoginRequest.php
+│   │       ├── StoreTareaRequest.php
+│   │       ├── UpdateTareaRequest.php
+│   │       ├── AssignTagsRequest.php
+│   │       ├── StoreTagRequest.php
+│   │       └── UpdateAvatarRequest.php
+│   └── Models/
+│       ├── User.php
+│       ├── Tarea.php
+│       └── Tag.php
+├── database/
+│   ├── migrations/
+│   └── seeders/
+│       ├── UserSeeder.php
+│       ├── TagSeeder.php
+│       └── TareaSeeder.php
+├── docs/
+│   └── diagrama-er.md
+├── routes/
+│   └── api.php
+└── postman_collection.json
+
+## Diagrama de Base de Datos
+
+Ver archivo `docs/diagrama-er.md` para el diagrama entidad-relación completo.
