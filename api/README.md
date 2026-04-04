@@ -63,13 +63,7 @@ DB_PASSWORD=tu_password
 php artisan migrate:fresh --seed
 ```
 
-### 6. Verificar carpeta para avatares
-La carpeta `public/avatars` ya existe con una imagen de ejemplo. Si por alguna razón no existe:
-```bash
-mkdir public/avatars
-```
-
-### 7. Iniciar el servidor
+### 6. Iniciar el servidor
 ```bash
 php artisan serve
 ```
@@ -142,23 +136,8 @@ La API extrae automáticamente metadatos EXIF al subir fotos de perfil.
 
 1. Hacer login en Postman
 2. Ir a **Auth → Subir Avatar**
-3. En el campo `avatar`, seleccionar una foto JPG (puede usar la foto de ejemplo en `public/avatars/`)
+3. En el campo `avatar`, seleccionar una foto JPG 
 4. Click en **Send**
-
-### Resultado esperado
-```json
-{
-  "message": "Avatar actualizado correctamente",
-  "avatar": "avatars/1_1234567890.jpg",
-  "avatar_exif": {
-    "make": "motorola",
-    "model": "motorola edge 40",
-    "datetime": "2025:01:30 14:20:49",
-    "gps_latitude": null,
-    "gps_longitude": null
-  }
-}
-```
 
 ## Decisiones de Diseño
 
