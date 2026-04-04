@@ -69,7 +69,7 @@ const authService = {
   // ----------------------------------------------------------
   // Subir foto de perfil (multipart/form-data)
   // ----------------------------------------------------------
-  async uploadAvatar(imageUri) {
+  async uploadAvatar(imageUri, exifData = null) {
     // Crear FormData para envío de archivo binario
     const formData = new FormData();
     
@@ -79,12 +79,16 @@ const authService = {
     const type = match ? `image/${match[1]}` : 'image/jpeg';
     
     // Agregar archivo al FormData
-    // React Native requiere este formato específico
     formData.append('avatar', {
       uri: imageUri,
       name: filename,
       type: type,
     });
+
+    // Agregar EXIF si está disponible (punto extra)
+    if (exifData) {
+      formData.append('avatar_exif', exifData);
+    }
     
     const response = await apiClient.post('/me/avatar', formData, {
       headers: {
