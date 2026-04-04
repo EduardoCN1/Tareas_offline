@@ -1,21 +1,13 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import { API_URL } from '../config/config';
 
 // ============================================================
 // CONFIGURACIÓN BASE
 // ============================================================
-// Cambia esta URL cuando despliegues la API en el VPS
-// Para desarrollo local:
-// - Android emulador: 'http://10.0.2.2:8000/api'
-// - Dispositivo físico: 'http://TU_IP_LOCAL:8000/api' (ej: 192.168.1.100)
-// - iOS simulador: 'http://localhost:8000/api'
-
-const API_URL = 'http://192.168.68.101:8000/api'; // <-- CAMBIA ESTO
-
-// Crear instancia de Axios con configuración base
 const apiClient = axios.create({
   baseURL: API_URL,
-  timeout: 10000, // 10 segundos máximo por petición
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
