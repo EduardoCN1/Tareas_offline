@@ -7,6 +7,7 @@ use App\Http\Requests\RegisterRequest;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\UpdateAvatarRequest;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -66,22 +67,23 @@ class AuthController extends Controller
         $user = $request->user();
 
         // Eliminar avatar anterior si existe
-        if ($user->avatar && file_exists(public_path($user->avatar))) {
-            unlink(public_path($user->avatar));
+        if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+            Storage::disk('public')->delete($user->avatar);
         }
 
-        // Guardar nueva imagen
+        // Guardar nueva imagen en storage/app/public/avatars
         $file = $request->file('avatar');
         $extension = $file->getClientOriginalExtension();
         $newFilename = $user->id . '_' . time() . '.' . $extension;
-        $file->move(public_path('avatars'), $newFilename);
-        $filename = 'avatars/' . $newFilename;
+        
+        // Usar Storage en lugar de move()
+        $path = $file->storeAs('avatars', $newFilename, 'public');
 
         // Extraer metadatos EXIF (si están disponibles)
         $exifData = null;
-        $fullPath = public_path($filename);
+        $fullPath = Storage::disk('public')->path($path);
         
-        if (function_exists('exif_read_data') && in_array($file->getClientOriginalExtension(), ['jpg', 'jpeg'])) {
+        if (function_exists('exif_read_data') && in_array(strtolower($extension), ['jpg', 'jpeg'])) {
             try {
                 $exif = @exif_read_data($fullPath);
                 if ($exif) {
@@ -100,13 +102,13 @@ class AuthController extends Controller
 
         // Actualizar usuario
         $user->update([
-            'avatar' => $filename,
+            'avatar' => $path,
             'avatar_exif' => $exifData,
         ]);
 
         return response()->json([
             'message' => 'Avatar actualizado correctamente',
-            'avatar' => $filename,
+            'avatar' => $path,
             'avatar_exif' => $exifData,
         ]);
     }
