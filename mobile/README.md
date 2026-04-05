@@ -88,6 +88,11 @@ npx expo start --android
 
 Requiere Android Studio con un emulador configurado.
 
+#### Instalar Android Studio con emulador configurado
+1. Descargar: https://developer.android.com/studio?hl=es-419
+2. Al ejecutar instalación el segundo paso habilita la opción de instalar dispositivos para emular, marcar casilla.
+3. Añadir dispositivo: https://developer.android.com/studio/run/managing-avds?hl=es-419
+
 ##  Estructura del Proyecto
 mobile/
 ├── App.js                    # Punto de entrada
