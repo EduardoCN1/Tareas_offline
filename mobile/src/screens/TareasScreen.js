@@ -30,6 +30,8 @@ export default function TareasScreen({ navigation }) {
   // Cargar tareas desde la API
   // ----------------------------------------------------------
   const fetchTareas = async (showLoader = true) => {
+    // Flujo de carga principal:
+    // UI pide datos -> tareasService llama GET /tareas -> estado local se actualiza.
     try {
       if (showLoader) setLoading(true);
       setError(null);
@@ -39,7 +41,6 @@ export default function TareasScreen({ navigation }) {
       const tareasData = response.data || response;
       setTareas(tareasData);
     } catch (err) {
-      console.error('Error cargando tareas:', err);
       setError('No se pudieron cargar las tareas');
       Alert.alert('Error', 'No se pudieron cargar las tareas');
     } finally {
@@ -73,6 +74,7 @@ export default function TareasScreen({ navigation }) {
   const handleToggleCompletada = async (id, completada) => {
     try {
       // Actualización optimista: actualizar UI inmediatamente
+      // (la experiencia se siente rápida aunque la red tarde).
       setTareas(prevTareas =>
         prevTareas.map(t =>
           t.id === id ? { ...t, completada } : t
@@ -95,6 +97,7 @@ export default function TareasScreen({ navigation }) {
   const handleDelete = async (id) => {
     try {
       // Actualización optimista
+      // Primero quitamos en pantalla, luego confirmamos en backend.
       setTareas(prevTareas => prevTareas.filter(t => t.id !== id));
       
       await TareasService.delete(id);
@@ -109,6 +112,7 @@ export default function TareasScreen({ navigation }) {
   // Navegar a editar tarea
   // ----------------------------------------------------------
   const handleEdit = (tarea) => {
+    // Navega al formulario en modo edición, enviando la tarea actual.
     navigation.navigate('TareaForm', { tarea });
   };
 
@@ -116,6 +120,7 @@ export default function TareasScreen({ navigation }) {
   // Navegar a crear tarea
   // ----------------------------------------------------------
   const handleCreate = () => {
+    // Navega al formulario en modo creación (sin tarea en params).
     navigation.navigate('TareaForm');
   };
 

@@ -4,7 +4,6 @@ import authService from '../services/authService';
 // ============================================================
 // CONTEXT DE AUTENTICACIÓN
 // ============================================================
-// Esto es similar al concepto de "Auth facade" en Laravel.
 // Cualquier componente puede acceder al usuario actual y funciones de auth.
 
 // Crear el contexto
@@ -14,6 +13,7 @@ const AuthContext = createContext(null);
 // PROVIDER - Envuelve toda la app y provee el estado
 // ============================================================
 export function AuthProvider({ children }) {
+  // Estado de autenticación
   const [user, setUser] = useState(null);           // Usuario actual
   const [isLoading, setIsLoading] = useState(true); // Verificando sesión inicial
   const [error, setError] = useState(null);         // Errores de auth
@@ -25,17 +25,15 @@ export function AuthProvider({ children }) {
     checkAuthStatus();
   }, []);
 
-  const checkAuthStatus = async () => {
+  const checkAuthStatus = async () => { 
     try {
       const hasToken = await authService.hasToken();
       if (hasToken) {
-        // Hay token guardado, obtener datos del usuario
-        const userData = await authService.getMe();
-        setUser(userData.user || userData);
+        const userData = await authService.getMe(); // Obtener datos del usuario con el token guardado
+        setUser(userData.user || userData); // Guardar usuario en estado global
       }
     } catch (err) {
       // Token inválido o expirado
-      console.log('No hay sesión válida');
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -62,6 +60,8 @@ export function AuthProvider({ children }) {
   // Función de registro
   // ----------------------------------------------------------
   const register = async (name, email, password) => {
+    // Flujo de registro: mismo patrón que login.
+    // Si backend responde OK, el usuario queda autenticado de inmediato.
     setError(null);
     try {
       const data = await authService.register(name, email, password);
@@ -90,6 +90,8 @@ export function AuthProvider({ children }) {
   // Actualizar datos del usuario (después de cambiar avatar, etc)
   // ----------------------------------------------------------
   const refreshUser = async () => {
+    // Se usa cuando cambia algo del perfil (por ejemplo avatar)
+    // para sincronizar el estado local con el backend.
     try {
       const userData = await authService.getMe();
       setUser(userData.user || userData);

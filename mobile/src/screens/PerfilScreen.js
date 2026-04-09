@@ -23,6 +23,8 @@ import { BASE_URL } from '../config/config';
 // ============================================================
 
 export default function PerfilScreen() {
+  
+  // Accedemos al usuario actual y funciones de auth desde el contexto global.
   const { user, logout, refreshUser } = useAuth();
   
   const [uploading, setUploading] = useState(false);
@@ -54,7 +56,7 @@ export default function PerfilScreen() {
       url = url.substring(1);
     }
     
-    // Construir URL completa - CAMBIA TU_IP_LOCAL por tu IP real
+    // Construir URL completa 
     const finalUrl = `${BASE_URL}/storage/${user.avatar}?t=${Date.now()}`;
     return finalUrl;
   }
@@ -65,11 +67,11 @@ export default function PerfilScreen() {
   // Seleccionar imagen (cámara o galería)
   // ----------------------------------------------------------
   const handleSelectImage = async () => {
+    // Abre diálogo: cámara o galería. Si usuario elige, guarda preview local.
     const result = await imageService.showImageOptions();
     
     if (result) {
       setSelectedImage(result);
-      
       // Formatear y mostrar EXIF
       const formatted = imageService.formatExifData(result.exif);
       setExifData(formatted);
@@ -89,9 +91,11 @@ export default function PerfilScreen() {
       // Preparar datos EXIF para enviar al backend
       const exifToSend = exifData ? JSON.stringify(exifData) : null;
       
+      // Endpoint: POST /me/avatar (multipart/form-data)
       await authService.uploadAvatar(selectedImage.uri, exifToSend);
       
       // Refrescar datos del usuario
+      // Esto actualiza el contexto global y refresca los componentes que consumen user.
       await refreshUser();
       
       Alert.alert('Éxito', 'Foto de perfil actualizada');
@@ -122,6 +126,7 @@ export default function PerfilScreen() {
   // Confirmar cierre de sesión
   // ----------------------------------------------------------
   const handleLogout = () => {
+    // Muestra confirmación para evitar cierres accidentales de sesión.
     Alert.alert(
       'Cerrar sesión',
       '¿Estás seguro de que quieres salir?',

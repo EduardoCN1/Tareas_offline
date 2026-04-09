@@ -20,6 +20,8 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   async (config) => {
     try {
+      // Antes de salir a red, toma token guardado y lo inyecta en Authorization.
+      // Gracias a esto, pantallas/servicios no necesitan repetir esta lógica.
       const token = await SecureStore.getItemAsync('auth_token');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -44,8 +46,6 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       // Limpiar token guardado
       await SecureStore.deleteItemAsync('auth_token');
-      // Aquí podrías emitir un evento para redirigir al login
-      // Lo implementaremos con el AuthContext
     }
     return Promise.reject(error);
   }

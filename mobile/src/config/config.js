@@ -1,10 +1,10 @@
 // ============================================================
 // CONFIGURACIÓN DE LA APLICACIÓN
 // ============================================================
-// Cambia estos valores según tu entorno de desarrollo/producción
+// Cambia estos valores según tu entorno de desarrollo
 
 const CONFIG = {
-  API_HOST: '192.168.68.101',
+  API_HOST: '192.168.137.195',
   API_PORT: '8000',
   API_PROTOCOL: 'http',
 };

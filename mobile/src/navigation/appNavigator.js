@@ -105,9 +105,11 @@ export default function AppNavigator() {
       </View>
     );
   }
-
   return (
     <NavigationContainer>
+      {/*  
+      Cuando AuthContext cambia user, este switch cambia automáticamente.
+      */}
       {isAuthenticated ? <MainStack /> : <AuthStack />}
     </NavigationContainer>
   );

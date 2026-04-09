@@ -63,7 +63,8 @@ class AuthController extends Controller
 
     // POST /api/me/avatar
     public function updateAvatar(UpdateAvatarRequest $request)
-    {
+    {   
+        //obtener usuario autenticado
         $user = $request->user();
 
         // Eliminar avatar anterior si existe
@@ -73,16 +74,17 @@ class AuthController extends Controller
 
         // Guardar nueva imagen en storage/app/public/avatars
         $file = $request->file('avatar');
-        $extension = $file->getClientOriginalExtension();
-        $newFilename = $user->id . '_' . time() . '.' . $extension;
+        $extension = $file->getClientOriginalExtension(); // Obtener extensión del archivo
+        $newFilename = $user->id . '_' . time() . '.' . $extension; // Generar nuevo nombre de archivo con extensión
         
         // Usar Storage en lugar de move()
         $path = $file->storeAs('avatars', $newFilename, 'public');
 
         // Extraer metadatos EXIF (si están disponibles)
-        $exifData = null;
-        $fullPath = Storage::disk('public')->path($path);
+        $exifData = null; 
+        $fullPath = Storage::disk('public')->path($path); 
         
+        // Solo intentar leer EXIF para imágenes JPEG
         if (function_exists('exif_read_data') && in_array(strtolower($extension), ['jpg', 'jpeg'])) {
             try {
                 $exif = @exif_read_data($fullPath);
@@ -108,8 +110,8 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Avatar actualizado correctamente',
-            'avatar' => $path,
-            'avatar_exif' => $exifData,
+            'avatar' => $path, 
+            'avatar_exif' => $exifData, 
         ]);
     }
 }

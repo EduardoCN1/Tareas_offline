@@ -12,6 +12,7 @@ const authService = {
   // Registro de nuevo usuario
   // ----------------------------------------------------------
   async register(name, email, password) {
+    // Envía credenciales al backend Laravel y espera token + user.
     const response = await apiClient.post('/register', {
       name,
       email,
@@ -19,7 +20,8 @@ const authService = {
       password_confirmation: password, // Laravel requiere confirmación
     });
     
-    // Guardar token de forma segura
+    // Guardar token de forma segura (almacenamiento cifrado del dispositivo).
+    // Este token será reutilizado por apiClient en cada petición privada.
     if (response.data.token) {
       await SecureStore.setItemAsync('auth_token', response.data.token);
     }
@@ -31,6 +33,7 @@ const authService = {
   // Inicio de sesión
   // ----------------------------------------------------------
   async login(email, password) {
+    // Misma idea que register, pero contra endpoint de login.
     const response = await apiClient.post('/login', {
       email,
       password,
@@ -49,11 +52,13 @@ const authService = {
   // ----------------------------------------------------------
   async logout() {
     try {
+      // Revoca sesión en servidor (token inválido desde backend).
       await apiClient.post('/logout');
     } catch (error) {
       // Aunque falle la petición, limpiamos el token local
       console.log('Error en logout:', error);
     } finally {
+      // Garantiza salida local para que la app no quede "medio logueada".
       await SecureStore.deleteItemAsync('auth_token');
     }
   },
@@ -62,7 +67,7 @@ const authService = {
   // Obtener usuario actual
   // ----------------------------------------------------------
   async getMe() {
-    const response = await apiClient.get('/me');
+    const response = await apiClient.get('/me'); // Endpoint protegido que devuelve datos del usuario actual según token.
     return response.data;
   },
 
@@ -103,8 +108,9 @@ const authService = {
   // Verificar si hay token guardado
   // ----------------------------------------------------------
   async hasToken() {
+    // Solo verifica presencia local del token
     const token = await SecureStore.getItemAsync('auth_token');
-    return !!token; // Convierte a boolean
+    return !!token; // Devuelve true si hay token, false si no
   },
 };
 

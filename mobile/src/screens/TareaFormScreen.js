@@ -31,6 +31,10 @@ export default function TareaFormScreen({ route, navigation }) {
   const tareaToEdit = route.params?.tarea;
   const isEditing = !!tareaToEdit;
 
+  // Vista mental rápida de este formulario:
+  // - Modo crear: POST /tareas + opcional ubicación + notificación.
+  // - Modo editar: PUT /tareas/:id + sincronización de tags + notificación.
+
   // ----------------------------------------------------------
   // Estado del formulario
   // ----------------------------------------------------------
@@ -75,6 +79,7 @@ export default function TareaFormScreen({ route, navigation }) {
   const fetchTags = async () => {
     try {
       setLoadingTags(true);
+      // Carga catálogo de etiquetas para selección múltiple.
       const response = await tagsService.getAll();
       const tagsData = response.data || response;
       setTags(tagsData);
@@ -146,9 +151,11 @@ export default function TareaFormScreen({ route, navigation }) {
 
       if (isEditing) {
         // Actualizar tarea existente
+        // Llama PUT /tareas/:id
         savedTarea = await tareasService.update(tareaToEdit.id, tareaData);
       } else {
         // Crear nueva tarea
+        // Llama POST /tareas
         savedTarea = await tareasService.create(tareaData);
       }
 
@@ -156,6 +163,7 @@ export default function TareaFormScreen({ route, navigation }) {
       const tareaId = savedTarea.data?.id || savedTarea.id || tareaToEdit?.id;
 
       // Asignar tags si hay seleccionados
+      // El backend maneja relación muchos-a-muchos en endpoint de tags.
       if (selectedTagIds.length > 0 && tareaId) {
         await tareasService.assignTags(tareaId, selectedTagIds);
       } else if (isEditing && tareaId) {
@@ -164,6 +172,8 @@ export default function TareaFormScreen({ route, navigation }) {
       }
 
       // Manejar notificación
+      // Si hay fecha límite: programar recordatorio local.
+      // Si se quita fecha: cancelar recordatorio previo.
       if (fechaLimite && tareaId) {
         await notificationService.scheduleTaskNotification(
           tareaId,

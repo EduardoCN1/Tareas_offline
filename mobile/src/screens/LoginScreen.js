@@ -20,15 +20,20 @@ export default function LoginScreen({ navigation }) {
   const { login, error, clearError } = useAuth();
 
   const handleLogin = async () => {
+    // Este handler se ejecuta al tocar "Iniciar Sesión".
+    // Es la puerta de entrada al flujo de autenticación.
+
     // Validación básica del lado del cliente
     if (!email.trim() || !password.trim()) {
       Alert.alert('Error', 'Por favor completa todos los campos');
       return;
     }
 
+    // Mostrar estado de carga para bloquear dobles clics
     setLoading(true);
     clearError();
 
+    // Llama al AuthContext
     const result = await login(email.trim(), password);
     
     setLoading(false);
