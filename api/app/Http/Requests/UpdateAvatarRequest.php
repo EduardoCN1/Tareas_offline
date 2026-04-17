@@ -14,6 +14,7 @@ class UpdateAvatarRequest extends FormRequest
     public function rules(): array
     {
         return [
+            // El campo 'avatar' es obligatorio, debe ser una imagen y no puede pesar más de 2MB
              'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }

@@ -8,14 +8,21 @@ use App\Http\Requests\StoreTagRequest;
 
 class TagController extends Controller
 {
-    // GET /api/tags - Listar todos los tags
+    /**
+     * Listar todos los tags..
+     *
+     * Muestra una lista de todos los tags disponibles.
+     */
     public function index()
     {
         $tags = Tag::all();
         return response()->json($tags);
     }
-
-    // POST /api/tags - Crear nuevo tag
+    /**
+     * Crear un nuevo tag..
+     *
+     * Crea un nuevo tag con los datos proporcionados.
+     */
     public function store(StoreTagRequest $request)
     {
         $tag = Tag::create([
@@ -25,9 +32,14 @@ class TagController extends Controller
         return response()->json($tag, 201);
     }
 
-    // DELETE /api/tags/{id} - Eliminar tag
+     /**
+     * Eliminar un tag..
+     *
+     * Elimina un tag con el ID proporcionado.
+     */
     public function destroy(string $id)
     {
+
         $tag = Tag::find($id);
         if (!$tag) {
             return response()->json([

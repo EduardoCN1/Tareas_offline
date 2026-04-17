@@ -2,11 +2,11 @@
   "expo": {
     "name": "android",
     "slug": "android",
+    "scheme": "pruebatecnica",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -20,7 +20,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "package": "com.eduardo_nemi_developer.android"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -28,7 +28,15 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "@react-native-community/datetimepicker"
-    ]
+      "@react-native-community/datetimepicker",
+      "expo-sqlite"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ed92b70f-93ae-44b0-85f8-d3747afc9f84"
+      }
+    },
+    "owner": "eduardo_nemi_developer"
   }
 }

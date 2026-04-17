@@ -13,10 +13,15 @@ class StoreTareaRequest extends FormRequest
     public function rules(): array
     {
         return [
+            //Titulo de la tarea
             'titulo' => 'required|string|max:150',
+            //Descripción de la tarea
             'descripcion' => 'nullable|string',
+            //Fecha límite para completar la tarea
             'fecha_limite' => 'nullable|date',
+            //Latitud de la ubicación de la tarea
             'latitud' => 'nullable|numeric|between:-90,90',
+            //Longitud de la ubicación de la tarea
             'longitud' => 'nullable|numeric|between:-180,180',
         ];
     }

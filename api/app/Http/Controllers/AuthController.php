@@ -11,7 +11,13 @@ use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
-   // POST /api/register
+    /**
+     * Registrar un nuevo usuario.
+     *
+     * Crea una cuenta y devuelve un token de acceso para usar en endpoints protegidos.
+        *
+        * @unauthenticated
+     */
     public function register(RegisterRequest $request)
     {
 
@@ -28,7 +34,13 @@ class AuthController extends Controller
             'token' => $token,
         ], 201);
     }
-    // POST /api/login
+    /**
+     * Iniciar sesion.
+     *
+     * Valida credenciales y devuelve un token Bearer para autenticar peticiones.
+        *
+        * @unauthenticated
+     */
     public function login(LoginRequest $request)
     {
         $user = User::where('email', $request->email)->first();
@@ -46,7 +58,11 @@ class AuthController extends Controller
             'token' => $token,
         ]);
     }
-    // POST /api/logout
+    /**
+     * Cerrar sesion.
+     *
+     * Revoca el token actual del usuario autenticado.
+     */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
@@ -55,13 +71,19 @@ class AuthController extends Controller
             'message' => 'Sesión cerrada correctamente',
         ]);
     }
-    // GET /api/me
+    /**
+     * Obtener perfil del usuario autenticado.
+     */
     public function me(Request $request)
     {
         return response()->json($request->user());
     }
 
-    // POST /api/me/avatar
+    /**
+     * Actualizar avatar del usuario autenticado.
+     *
+     * Acepta un archivo de imagen, lo guarda en storage publico y actualiza su metadata EXIF cuando esta disponible.
+     */
     public function updateAvatar(UpdateAvatarRequest $request)
     {   
         //obtener usuario autenticado

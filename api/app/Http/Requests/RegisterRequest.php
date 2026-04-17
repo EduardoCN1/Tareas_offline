@@ -4,18 +4,22 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+
+
 class RegisterRequest extends FormRequest
 {
     public function authorize(): bool
     {
         return true;
     }
-
     public function rules(): array
     {
         return [
+            //Nombre
             'name' => 'required|string|max:255',
+            //Correo electronico
             'email' => 'required|string|email|unique:users',
+            //Contreña
             'password' => 'required|string|min:8',
         ];
     }

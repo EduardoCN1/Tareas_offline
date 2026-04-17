@@ -4,7 +4,7 @@
 // Cambia estos valores según tu entorno de desarrollo
 
 const CONFIG = {
-  API_HOST: '192.168.137.195',
+  API_HOST: '192.168.137.77',
   API_PORT: '8000',
   API_PROTOCOL: 'http',
 };

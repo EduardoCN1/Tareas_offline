@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,106 +7,56 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 
-import TareasService from '../services/tareasService';
 import TareaCard from '../components/tareaCard';
-import EmptyState from '../components/empyState'
+import EmptyState from '../components/empyState';
+import { useTareas } from '../hooks/useTareas'; //Hook personalizado para manejar las tareas
 
 // ============================================================
 // TAREAS SCREEN - Lista principal de tareas
 // ============================================================
 
 export default function TareasScreen({ navigation }) {
-  const [tareas, setTareas] = useState([]);
-  const [loading, setLoading] = useState(true);
+ 
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState(null);
-
-  // ----------------------------------------------------------
-  // Cargar tareas desde la API
-  // ----------------------------------------------------------
-  const fetchTareas = async (showLoader = true) => {
-    // Flujo de carga principal:
-    // UI pide datos -> tareasService llama GET /tareas -> estado local se actualiza.
-    try {
-      if (showLoader) setLoading(true);
-      setError(null);
-      
-      const response = await TareasService.getAll();
-      // La API puede devolver { data: [...] } o directamente [...]
-      const tareasData = response.data || response;
-      setTareas(tareasData);
-    } catch (err) {
-      setError('No se pudieron cargar las tareas');
-      Alert.alert('Error', 'No se pudieron cargar las tareas');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+  const { tareas, cargando, crear, editar, borrar, recargar } = useTareas(); //Estados y funciones del hook personalizado
 
   // ----------------------------------------------------------
   // Cargar tareas cuando la pantalla obtiene el foco
   // ----------------------------------------------------------
-  // Esto es importante: cada vez que vuelves a esta pantalla
-  // (después de crear/editar tarea), se recargan los datos
   useFocusEffect(
     useCallback(() => {
-      fetchTareas();
-    }, [])
+      recargar();
+    }, [recargar])
   );
 
   // ----------------------------------------------------------
   // Pull to refresh
   // ----------------------------------------------------------
-  const onRefresh = () => {
+  const onRefresh = useCallback (async() => {
     setRefreshing(true);
-    fetchTareas(false);
-  };
+    await recargar();
+    setRefreshing(false);
+  },[recargar]);
 
   // ----------------------------------------------------------
   // Marcar/desmarcar tarea como completada
   // ----------------------------------------------------------
-  const handleToggleCompletada = async (id, completada) => {
-    try {
-      // Actualización optimista: actualizar UI inmediatamente
-      // (la experiencia se siente rápida aunque la red tarde).
-      setTareas(prevTareas =>
-        prevTareas.map(t =>
-          t.id === id ? { ...t, completada } : t
-        )
-      );
-
-      // Luego actualizar en el servidor
-      await TareasService.toggleCompletada(id, completada);
-    } catch (err) {
-      console.error('Error actualizando tarea:', err);
-      // Revertir si falla
-      fetchTareas(false);
-      Alert.alert('Error', 'No se pudo actualizar la tarea');
-    }
-  };
+  const handleToggleCompletada = useCallback(async (id, completada) => {
+    const tarea = tareas.find(t => t.id === id);
+    if (!tarea) return;
+    await editar(id, { ...tarea, completada});
+  }, [tareas, editar]);
 
   // ----------------------------------------------------------
   // Eliminar tarea
   // ----------------------------------------------------------
-  const handleDelete = async (id) => {
-    try {
-      // Actualización optimista
-      // Primero quitamos en pantalla, luego confirmamos en backend.
-      setTareas(prevTareas => prevTareas.filter(t => t.id !== id));
-      
-      await TareasService.delete(id);
-    } catch (err) {
-      console.error('Error eliminando tarea:', err);
-      fetchTareas(false);
-      Alert.alert('Error', 'No se pudo eliminar la tarea');
-    }
-  };
+  const handleDelete = useCallback(async (id) => {
+    await borrar(id);
+  }, [borrar]);
 
   // ----------------------------------------------------------
   // Navegar a editar tarea
@@ -146,7 +96,7 @@ export default function TareasScreen({ navigation }) {
   // ----------------------------------------------------------
   // Render
   // ----------------------------------------------------------
-  if (loading) {
+  if (cargando) {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color="#3B82F6" />

@@ -9,13 +9,21 @@ use App\Http\Requests\AssignTagsRequest;
 
 class TareaController extends Controller
 {
-    // GET /api/tareas - Listar tareas del usuario autenticado
+    /**
+     * Listar tareas del usuario autenticado.
+     * 
+     * Muestra una lista de todas las tareas del usuario autenticado, incluyendo sus tags asociados.
+     */
     public function index(Request $request)
     {
         $tareas = $request->user()->tareas()->with('tags')->get();
         return response()->json($tareas);
     }
-    // POST /api/tareas - Crear nueva tarea
+    /**
+     * Crear una nueva tarea.
+     * 
+     * Crea una nueva tarea para el usuario autenticado con los datos proporcionados.
+     */
     public function store(StoreTareaRequest $request)
     {
 
@@ -29,7 +37,11 @@ class TareaController extends Controller
 
         return response()->json($tarea, 201);
     }
-    // GET /api/tareas/{id} - Ver detalle de una tarea
+    /**
+     * Ver detalle de una tarea.
+     *
+     * Muestra los detalles de una tarea específica del usuario autenticado.
+     */
     public function show(Request $request, string $id)
     {
          $tarea = $request->user()->tareas()->with('tags')->find($id);
@@ -40,7 +52,11 @@ class TareaController extends Controller
         }
         return response()->json($tarea);
     }
-    // PUT /api/tareas/{id} - Actualizar tarea
+    /**
+     * Actualizar una tarea.
+     *
+     * Actualiza los datos de una tarea específica del usuario autenticado.
+     */
     public function update(UpdateTareaRequest $request, string $id)
     {
         $tarea = $request->user()->tareas()->find($id);
@@ -61,7 +77,11 @@ class TareaController extends Controller
         ]));
         return response()->json($tarea);
     }
-    // DELETE /api/tareas/{id} - Eliminar tarea
+    /**
+     * Eliminar una tarea.
+     *
+     * Elimina una tarea específica del usuario autenticado.
+     */
     public function destroy(Request $request, string $id)
     {
         $tarea = $request->user()->tareas()->find($id);
@@ -75,7 +95,11 @@ class TareaController extends Controller
             'message' => 'Tarea eliminada correctamente'
         ]);
     }
-    // POST /api/tareas/{id}/tags - Asignar tags a una tarea
+    /**
+     * Asignar tags a una tarea.
+     *
+     * Asigna uno o más tags a una tarea específica del usuario autenticado.
+     */
     public function assignTags(AssignTagsRequest $request, string $id)
     {
         $tarea = $request->user()->tareas()->find($id);
@@ -87,7 +111,11 @@ class TareaController extends Controller
         $tarea->tags()->sync($request->tags);
         return response()->json($tarea->load('tags'));
     }
-    // DELETE /api/tareas/{id}/tags/{tag_id} - Quitar un tag de una tarea
+    /**
+     * Quitar un tag de una tarea.
+     *
+     * Quita un tag de una tarea específica del usuario autenticado.
+     */
     public function removeTag(Request $request, string $id, string $tagId)
     {
         $tarea = $request->user()->tareas()->find($id);

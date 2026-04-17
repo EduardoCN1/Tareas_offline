@@ -14,7 +14,9 @@ class StoreTagRequest extends FormRequest
     public function rules(): array
     {
         return [
+            //Nombre del tag
             'nombre' => 'required|string|max:50',
+            //Color del tag en formato hexadecimal (ej: #FF0000)
             'color' => 'required|string|size:7|regex:/^#[A-Fa-f0-9]{6}$/',
         ];
     }
