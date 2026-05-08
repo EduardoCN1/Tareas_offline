@@ -16,11 +16,11 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-import tareasService from '../services/tareasService';
-import tagsService from '../services/tagsService';
 import notificationService from '../services/notificationService';
 import useLocation from '../hooks/useLocation';
 import TagSelector from '../components/tagSelector';
+import { useAuth } from '../context/authContext';
+import * as repo from '../database/tareasRepository';
 
 // ============================================================
 // TAREA FORM SCREEN - Crear y Editar tareas
@@ -30,10 +30,6 @@ export default function TareaFormScreen({ route, navigation }) {
   // Si viene tarea en params, estamos editando
   const tareaToEdit = route.params?.tarea;
   const isEditing = !!tareaToEdit;
-
-  // Vista mental rápida de este formulario:
-  // - Modo crear: POST /tareas + opcional ubicación + notificación.
-  // - Modo editar: PUT /tareas/:id + sincronización de tags + notificación.
 
   // ----------------------------------------------------------
   // Estado del formulario
@@ -54,6 +50,7 @@ export default function TareaFormScreen({ route, navigation }) {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loadingTags, setLoadingTags] = useState(true);
+  const { user } = useAuth();
 
   // ----------------------------------------------------------
   // Hook de ubicación (solo para crear, no editar)
@@ -77,12 +74,17 @@ export default function TareaFormScreen({ route, navigation }) {
   }, []);
 
   const fetchTags = async () => {
+    setLoadingTags(true);
+
+    // 1) UI inmediata desde SQLite (offline-first)
+    const localTags = repo.getAllTags();
+    setTags(localTags);
+
+    // 2) Sync en segundo plano y refresco local
     try {
-      setLoadingTags(true);
-      // Carga catálogo de etiquetas para selección múltiple.
-      const response = await tagsService.getAll();
-      const tagsData = response.data || response;
-      setTags(tagsData);
+      await repo.pullTagsFromServer();
+      const updatedLocalTags = repo.getAllTags();
+      setTags(updatedLocalTags);
     } catch (err) {
       console.error('Error cargando tags:', err);
     } finally {
@@ -148,27 +150,30 @@ export default function TareaFormScreen({ route, navigation }) {
       }
 
       let savedTarea;
+      let tareaId;
 
       if (isEditing) {
-        // Actualizar tarea existente
-        // Llama PUT /tareas/:id
-        savedTarea = await tareasService.update(tareaToEdit.id, tareaData);
+        // Actualización local-first por id local
+        await repo.updateTarea(tareaToEdit.id, tareaData);
+        tareaId = tareaToEdit.id;
       } else {
-        // Crear nueva tarea
-        // Llama POST /tareas
-        savedTarea = await tareasService.create(tareaData);
+        if (!user?.id) {
+          Alert.alert('Error', 'No se pudo identificar al usuario actual');
+          setSaving(false);
+          return;
+        }
+
+        // Crear local primero para soportar offline
+        savedTarea = await repo.createTarea({
+          ...tareaData,
+          user_id: user?.id,
+        });
+        tareaId = savedTarea;
       }
 
-      // Obtener el ID de la tarea guardada
-      const tareaId = savedTarea.data?.id || savedTarea.id || tareaToEdit?.id;
-
-      // Asignar tags si hay seleccionados
-      // El backend maneja relación muchos-a-muchos en endpoint de tags.
-      if (selectedTagIds.length > 0 && tareaId) {
-        await tareasService.assignTags(tareaId, selectedTagIds);
-      } else if (isEditing && tareaId) {
-        // Si estamos editando y no hay tags seleccionados, limpiar tags
-        await tareasService.assignTags(tareaId, []);
+      // Sincronizar tags localmente y, si hay red + server_id, también en remoto.
+      if (tareaId) {
+        await repo.syncTagsForTarea(tareaId, selectedTagIds);
       }
 
       // Manejar notificación

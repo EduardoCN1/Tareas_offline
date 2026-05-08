@@ -28,6 +28,20 @@ export function initDatabase() {
       sync_status  TEXT NOT NULL DEFAULT 'pending',
       server_id    INTEGER
     );
+    CREATE TABLE IF NOT EXISTS tags (
+      id           INTEGER PRIMARY KEY NOT NULL,
+      nombre       TEXT NOT NULL,
+      color        TEXT NOT NULL,
+      created_at   TEXT NOT NULL,
+      updated_at   TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS tarea_tag (
+      tarea_id     TEXT NOT NULL,
+      tag_id       INTEGER NOT NULL,
+      PRIMARY KEY (tarea_id, tag_id),
+      FOREIGN KEY (tarea_id) REFERENCES tareas(id) ON DELETE CASCADE,
+      FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+    );
   `);
   console.log('Base de datos SQLite inicializada');
 }

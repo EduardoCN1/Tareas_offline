@@ -23,7 +23,7 @@ export async function createTareaRemoto(tarea) {
     latitud:      tarea.latitud,
     longitud:     tarea.longitud,
   });
-  return response.data.data; // tarea creada con su id del servidor
+  return response.data?.data ?? response.data; // soporta ambos formatos
 }
 
 /** ------ OPERACIÓN UPDATE REMOTA -----------
@@ -31,7 +31,7 @@ export async function createTareaRemoto(tarea) {
  */
 export async function updateTareaRemoto(server_id, campos) {
   const response = await api.put(`/tareas/${server_id}`, campos);
-  return response.data.data;
+  return response.data?.data ?? response.data; // soporta ambos formatos
 }
 
 /** ------ OPERACIÓN DELETE REMOTA -----------
@@ -39,4 +39,22 @@ export async function updateTareaRemoto(server_id, campos) {
  */
 export async function deleteTareaRemoto(server_id) {
   await api.delete(`/tareas/${server_id}`);
+}
+
+/** ------ OPERACIÓN READ REMOTA DE TAGS -----------
+ * Descarga el catálogo de tags para mantener SQLite actualizado.
+ */
+export async function getTagsRemoto() {
+  const response = await api.get('/tags');
+  return response.data?.data ?? response.data;
+}
+
+/** ------ OPERACIÓN SYNC REMOTA DE TAGS EN TAREA -----------
+ * Reemplaza los tags asociados a una tarea en el servidor.
+ */
+export async function syncTareaTagsRemoto(server_id, tagIds) {
+  const response = await api.post(`/tareas/${server_id}/tags`, {
+    tags: tagIds,
+  });
+  return response.data;
 }
